@@ -15,6 +15,7 @@
 .hero-card {
   text-align: center;
   max-width: 560px;
+  width: 100%;
   padding: 3rem 2.5rem;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.04);
@@ -53,27 +54,180 @@
   font-size: 1.05rem;
   line-height: 1.6;
   color: #a0a0b8;
-  margin: 0 0 2.5rem;
+  margin: 0 0 2rem;
 }
 
-/* ── Upload Placeholder ── */
-.upload-area {
+/* ═══════════════════════════════════════
+   Upload Form
+   ═══════════════════════════════════════ */
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+/* ── Drop Zone ── */
+.drop-zone {
   border: 2px dashed rgba(127, 90, 240, 0.35);
   border-radius: 14px;
-  padding: 2.5rem 1.5rem;
-  color: #6b6b80;
-  font-size: 0.95rem;
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
   transition: border-color 0.3s ease, background 0.3s ease;
-  cursor: default;
 }
 
-.upload-area:hover {
+.drop-zone:hover {
   border-color: rgba(127, 90, 240, 0.6);
   background: rgba(127, 90, 240, 0.04);
 }
 
-.upload-icon {
+.drop-zone--has-file {
+  border-color: rgba(44, 181, 232, 0.5);
+  background: rgba(44, 181, 232, 0.04);
+}
+
+.drop-zone__icon {
   font-size: 1.75rem;
-  margin-bottom: 0.5rem;
   display: block;
+  margin-bottom: 0.4rem;
+}
+
+.drop-zone__text {
+  display: block;
+  color: #8888a0;
+  font-size: 0.95rem;
+}
+
+.drop-zone__hint {
+  display: block;
+  margin-top: 0.35rem;
+  color: #5a5a70;
+  font-size: 0.8rem;
+}
+
+.drop-zone__file-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.drop-zone__file-icon {
+  font-size: 1.4rem;
+}
+
+.drop-zone__file-name {
+  color: #d0d0e8;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.drop-zone__file-size {
+  color: #6b6b80;
+  font-size: 0.85rem;
+}
+
+/* ── Form Field ── */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  color: #9090a8;
+  font-weight: 500;
+}
+
+.form-input {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.form-input::placeholder {
+  color: #5a5a70;
+}
+
+.form-input:focus {
+  border-color: rgba(127, 90, 240, 0.6);
+  box-shadow: 0 0 0 3px rgba(127, 90, 240, 0.12);
+}
+
+/* ── Submit Button ── */
+.submit-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: #fff;
+  background: linear-gradient(135deg, #7f5af0, #2cb5e8);
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+}
+
+.submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Messages ── */
+.msg {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.msg--error {
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  color: #ff7070;
+}
+
+.msg--success {
+  background: rgba(46, 213, 115, 0.1);
+  border: 1px solid rgba(46, 213, 115, 0.3);
+  color: #2ed573;
 }

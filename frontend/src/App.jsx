@@ -1,4 +1,5 @@
 import './App.css'
+import UploadForm from './UploadForm'
 
 function App() {
   return (
@@ -11,11 +12,7 @@ function App() {
           summary.
         </p>
 
-        {/* Upload form will be added here */}
-        <div className="upload-area">
-          <span className="upload-icon">☁️</span>
-          Drop your file here or click to upload
-        </div>
+        <UploadForm />
       </div>
     </div>
   )
