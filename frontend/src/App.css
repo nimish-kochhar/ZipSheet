@@ -230,4 +230,41 @@
   background: rgba(46, 213, 115, 0.1);
   border: 1px solid rgba(46, 213, 115, 0.3);
   color: #2ed573;
+  text-align: left;
+}
+
+.ai-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #7f5af0, #2cb5e8);
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.summary-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: #c8c8d8;
+}
+
+.msg--warning {
+  background: rgba(255, 190, 60, 0.08);
+  border: 1px solid rgba(255, 190, 60, 0.25);
+  color: #d4a847;
+  text-align: left;
+}
+
+.warning-list {
+  margin: 0.4rem 0 0 1.2rem;
+  padding: 0;
+  list-style: disc;
+  font-size: 0.85rem;
+  line-height: 1.6;
 }

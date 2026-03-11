@@ -9,6 +9,8 @@ function UploadForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [warnings, setWarnings] = useState([])
+  const [aiPowered, setAiPowered] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleFileChange = (e) => {
@@ -59,6 +61,8 @@ function UploadForm() {
 
     setError('')
     setSuccess('')
+    setWarnings([])
+    setAiPowered(false)
     setLoading(true)
 
     try {
@@ -70,7 +74,9 @@ function UploadForm() {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      setSuccess(response.data.message || 'File uploaded successfully! Summary will be sent to your email.')
+      setSuccess(response.data.summary || 'File analyzed successfully!')
+      setWarnings(response.data.warnings || [])
+      setAiPowered(response.data.ai_powered || false)
     } catch (err) {
       const msg =
         err.response?.data?.detail ||
@@ -146,7 +152,20 @@ function UploadForm() {
 
       {/* ── Feedback messages ── */}
       {error && <p className="msg msg--error">{error}</p>}
-      {success && <p className="msg msg--success">{success}</p>}
+      {success && (
+        <div className="msg msg--success">
+          {aiPowered && <span className="ai-badge">✨ AI-Powered</span>}
+          <pre className="summary-text">{success}</pre>
+        </div>
+      )}
+      {warnings.length > 0 && (
+        <div className="msg msg--warning">
+          <strong>Notes:</strong>
+          <ul className="warning-list">
+            {warnings.map((w, i) => <li key={i}>{w}</li>)}
+          </ul>
+        </div>
+      )}
     </form>
   )
 }
