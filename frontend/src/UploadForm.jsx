@@ -1,4 +1,7 @@
 import { useState, useRef } from 'react'
+import axios from 'axios'
+
+const API_URL = 'http://localhost:8000'
 
 function UploadForm() {
   const [file, setFile] = useState(null)
@@ -58,11 +61,26 @@ function UploadForm() {
     setSuccess('')
     setLoading(true)
 
-    // TODO: connect to backend
-    setTimeout(() => {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('email', email)
+
+      const response = await axios.post(`${API_URL}/analyze`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+
+      setSuccess(response.data.message || 'File uploaded successfully! Summary will be sent to your email.')
+    } catch (err) {
+      const msg =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        err.message ||
+        'Something went wrong. Please try again.'
+      setError(msg)
+    } finally {
       setLoading(false)
-      setSuccess('File uploaded successfully! Summary will be sent to your email.')
-    }, 1500)
+    }
   }
 
   return (
