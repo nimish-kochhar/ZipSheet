@@ -5,9 +5,9 @@ import logging
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from services.ai_service import generate_summary_from_profile
 from services.email_service import send_email
-from services.parser import analyze_dataset, analysis_to_text, read_file
-from services.summary import generate_ai_summary
+from services.profiler import profile_dataframe, read_file
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -61,12 +61,11 @@ async def analyze(
         "Parsed %d rows × %d cols from '%s'", len(df), len(df.columns), filename
     )
 
-    # --- generic analysis ---
-    analysis = analyze_dataset(df)
-    analysis_text = analysis_to_text(analysis)
+    # --- profile ---
+    profile = profile_dataframe(df)
 
     # --- AI summary ---
-    ai_result = await generate_ai_summary(analysis_text)
+    ai_result = generate_summary_from_profile(profile)
     summary_text = ai_result["summary"]
 
     # --- send email ---
@@ -78,18 +77,16 @@ async def analyze(
 
     return {
         "status": "success",
-        "email": email,
         "summary": summary_text,
-        "ai_powered": ai_result["ai_powered"],
+        "warnings": ai_result.get("warnings", []),
         "email_status": email_status,
-        "dataset_overview": {
-            "rows": analysis["rows"],
-            "columns": analysis["columns"],
-            "column_names": analysis["column_names"],
-            "numeric_columns": analysis["numeric_columns"],
-            "categorical_columns": analysis["categorical_columns"],
-            "datetime_columns": analysis["datetime_columns"],
-            "missing_values": analysis["missing_values"],
+        "profile_snippet": {
+            "n_rows": profile["n_rows"],
+            "n_columns": profile["n_columns"],
+            "total_missing": profile["total_missing"],
+            "column_names": profile["column_names"],
+            "numeric_columns": profile["numeric_columns"],
+            "categorical_columns": profile["categorical_columns"],
+            "datetime_columns": profile["datetime_columns"],
         },
-        "warnings": [ai_result["error"]] if ai_result["error"] else [],
     }
