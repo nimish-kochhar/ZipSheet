@@ -88,5 +88,6 @@ async def analyze(
             "numeric_columns": profile["numeric_columns"],
             "categorical_columns": profile["categorical_columns"],
             "datetime_columns": profile["datetime_columns"],
+            "sample_rows": profile["sample_rows"][:5],
         },
     }

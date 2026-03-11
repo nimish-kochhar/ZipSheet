@@ -27,7 +27,26 @@ ZipSheet/
 
 ## Getting Started
 
-### Frontend
+### Docker (recommended)
+
+```bash
+# 1. Create a .env file at the repo root with your keys (optional)
+#    GEMINI_API_KEY=your_key_here
+#    SENDGRID_API_KEY=your_key_here
+
+# 2. Build and start both services
+docker-compose up --build
+
+# 3. Open the app
+#    Frontend → http://localhost:3000
+#    Backend  → http://localhost:8000
+#    Swagger  → http://localhost:8000/docs
+```
+
+To stop: `docker-compose down`
+To rebuild after code changes: `docker-compose up --build`
+
+### Frontend (local dev)
 
 ```bash
 cd frontend

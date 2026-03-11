@@ -8,9 +8,12 @@ function UploadForm() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [summary, setSummary] = useState('')
   const [warnings, setWarnings] = useState([])
-  const [aiPowered, setAiPowered] = useState(false)
+  const [profileSnippet, setProfileSnippet] = useState(null)
+  const [emailStatus, setEmailStatus] = useState(null)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
   const fileInputRef = useRef(null)
 
   const handleFileChange = (e) => {
@@ -28,7 +31,7 @@ function UploadForm() {
     }
 
     setError('')
-    setSuccess('')
+    setSummary('')
     setFile(selected)
   }
 
@@ -47,6 +50,16 @@ function UploadForm() {
     e.stopPropagation()
   }
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(summary)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard may be blocked — ignore */
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -60,9 +73,12 @@ function UploadForm() {
     }
 
     setError('')
-    setSuccess('')
+    setSummary('')
     setWarnings([])
-    setAiPowered(false)
+    setProfileSnippet(null)
+    setEmailStatus(null)
+    setProfileOpen(false)
+    setCopied(false)
     setLoading(true)
 
     try {
@@ -74,9 +90,11 @@ function UploadForm() {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      setSuccess(response.data.summary || 'File analyzed successfully!')
-      setWarnings(response.data.warnings || [])
-      setAiPowered(response.data.ai_powered || false)
+      const data = response.data
+      setSummary(data.summary || 'File analyzed successfully!')
+      setWarnings(data.warnings || [])
+      setProfileSnippet(data.profile_snippet || null)
+      setEmailStatus(data.email_status || null)
     } catch (err) {
       const msg =
         err.response?.data?.detail ||
@@ -150,20 +168,120 @@ function UploadForm() {
         )}
       </button>
 
-      {/* ── Feedback messages ── */}
+      {/* ── Error ── */}
       {error && <p className="msg msg--error">{error}</p>}
-      {success && (
-        <div className="msg msg--success">
-          {aiPowered && <span className="ai-badge">✨ AI-Powered</span>}
-          <pre className="summary-text">{success}</pre>
-        </div>
-      )}
+
+      {/* ── Warnings ── */}
       {warnings.length > 0 && (
         <div className="msg msg--warning">
-          <strong>Notes:</strong>
+          <strong>⚠ Notes:</strong>
           <ul className="warning-list">
             {warnings.map((w, i) => <li key={i}>{w}</li>)}
           </ul>
+        </div>
+      )}
+
+      {/* ── Summary ── */}
+      {summary && (
+        <div className="msg msg--success">
+          <div className="summary-header">
+            <span className="ai-badge">📋 Summary</span>
+            <button
+              type="button"
+              className="copy-btn"
+              onClick={handleCopy}
+              title="Copy summary to clipboard"
+            >
+              {copied ? '✓ Copied' : '📄 Copy'}
+            </button>
+          </div>
+          <pre className="summary-text">{summary}</pre>
+        </div>
+      )}
+
+      {/* ── Email status ── */}
+      {emailStatus && (
+        <div className={`msg ${emailStatus.sent ? 'msg--success' : 'msg--info'}`}>
+          {emailStatus.sent
+            ? '✅ Summary emailed successfully.'
+            : '📧 Email logged to console (mail service not configured).'}
+        </div>
+      )}
+
+      {/* ── Collapsible profile snippet ── */}
+      {profileSnippet && (
+        <div className="profile-section">
+          <button
+            type="button"
+            className="profile-toggle"
+            onClick={() => setProfileOpen((v) => !v)}
+          >
+            <span className={`profile-arrow ${profileOpen ? 'profile-arrow--open' : ''}`}>
+              ▶
+            </span>
+            Show dataset profile
+          </button>
+
+          {profileOpen && (
+            <div className="profile-body">
+              <div className="profile-meta">
+                <span className="profile-chip">{profileSnippet.n_rows?.toLocaleString()} rows</span>
+                <span className="profile-chip">{profileSnippet.n_columns} columns</span>
+                <span className="profile-chip">{profileSnippet.total_missing?.toLocaleString()} missing</span>
+              </div>
+
+              {profileSnippet.column_names && (
+                <p className="profile-columns">
+                  <strong>Columns:</strong>{' '}
+                  {profileSnippet.column_names.join(', ')}
+                </p>
+              )}
+
+              {profileSnippet.numeric_columns?.length > 0 && (
+                <p className="profile-columns">
+                  <strong>Numeric:</strong>{' '}
+                  {profileSnippet.numeric_columns.join(', ')}
+                </p>
+              )}
+
+              {profileSnippet.categorical_columns?.length > 0 && (
+                <p className="profile-columns">
+                  <strong>Categorical:</strong>{' '}
+                  {profileSnippet.categorical_columns.join(', ')}
+                </p>
+              )}
+
+              {profileSnippet.datetime_columns?.length > 0 && (
+                <p className="profile-columns">
+                  <strong>Datetime:</strong>{' '}
+                  {profileSnippet.datetime_columns.join(', ')}
+                </p>
+              )}
+
+              {profileSnippet.sample_rows && profileSnippet.sample_rows.length > 0 && (
+                <div className="profile-table-wrap">
+                  <table className="profile-table">
+                    <thead>
+                      <tr>
+                        {Object.keys(profileSnippet.sample_rows[0]).map((col) => (
+                          <th key={col}>{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {profileSnippet.sample_rows.slice(0, 5).map((row, ri) => (
+                        <tr key={ri}>
+                          {Object.values(row).map((val, ci) => (
+                            <td key={ci}>{val}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </form>

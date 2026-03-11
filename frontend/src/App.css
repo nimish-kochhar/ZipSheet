@@ -268,3 +268,147 @@
   font-size: 0.85rem;
   line-height: 1.6;
 }
+
+/* ── Summary header (badge + copy btn) ── */
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: #c8c8d8;
+  font-size: 0.78rem;
+  font-family: inherit;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Info message (email status) ── */
+.msg--info {
+  background: rgba(44, 181, 232, 0.08);
+  border: 1px solid rgba(44, 181, 232, 0.25);
+  color: #5cc8ee;
+  text-align: left;
+}
+
+/* ── Profile section ── */
+.profile-section {
+  margin-top: 0.25rem;
+}
+
+.profile-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  color: #b0b0c8;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.profile-toggle:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.profile-arrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+.profile-arrow--open {
+  transform: rotate(90deg);
+}
+
+.profile-body {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+.profile-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.profile-chip {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(127, 90, 240, 0.15);
+  color: #b89cff;
+}
+
+.profile-columns {
+  font-size: 0.82rem;
+  color: #9898b0;
+  margin: 0.35rem 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.profile-columns strong {
+  color: #c0c0d4;
+}
+
+/* ── Profile sample table ── */
+.profile-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.profile-table th,
+.profile-table td {
+  padding: 0.4rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.profile-table th {
+  background: rgba(127, 90, 240, 0.1);
+  color: #b89cff;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.profile-table td {
+  color: #b0b0c8;
+}
+
+.profile-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
