@@ -1,87 +1,77 @@
 # ZipSheet — Sales Insight Automator
 
-A full-stack web application with a **React** frontend and a **FastAPI** backend.  
-Upload a sales CSV or Excel file and receive an AI-powered revenue summary.
+Upload any sales CSV/XLSX → get an AI-powered executive summary emailed to you.
 
-## Project Structure
+## Architecture
 
 ```
-ZipSheet/
-├── frontend/              # Vite + React (JavaScript)
-│   ├── src/
-│   │   ├── App.jsx        # Root component
-│   │   ├── UploadForm.jsx # File-upload + email form
-│   │   ├── App.css        # Component styles
-│   │   └── index.css      # Global reset
-│   ├── package.json
-│   └── vite.config.js
-├── backend/               # FastAPI (Python)
-│   ├── main.py            # API entry-point
-│   ├── services/
-│   │   ├── parser.py      # Column normalizer & synonym mapper
-│   │   └── summary.py     # Tolerant summary generator
-│   └── requirements.txt
-├── .gitignore
-└── README.md
+┌────────────┐  POST /analyze   ┌──────────────┐
+│  React UI  │ ───────────────▸ │  FastAPI API  │
+│  (Vite)    │ ◂─── JSON ───── │  port 8000    │
+│  port 3000 │                  └──┬───┬───┬────┘
+└────────────┘                     │   │   │
+                          profile_df  Gemini  SendGrid
+                          (pandas)    (LLM)   (email)
 ```
 
-## Getting Started
+- **Frontend** — React 19 + Vite, drag-drop upload, collapsible profile, copy-to-clipboard.
+- **Backend** — FastAPI, schema-agnostic profiler, Gemini AI summariser with deterministic fallback, SendGrid email (or console log).
+- **CI** — GitHub Actions: build frontend + install backend deps on every PR to `main`.
 
-### Docker (recommended)
-
-```bash
-# 1. Create a .env file at the repo root with your keys (optional)
-#    GEMINI_API_KEY=your_key_here
-#    SENDGRID_API_KEY=your_key_here
-
-# 2. Build and start both services
-docker-compose up --build
-
-# 3. Open the app
-#    Frontend → http://localhost:3000
-#    Backend  → http://localhost:8000
-#    Swagger  → http://localhost:8000/docs
-```
-
-To stop: `docker-compose down`
-To rebuild after code changes: `docker-compose up --build`
-
-### Frontend (local dev)
-
-```bash
-cd frontend
-npm install
-npm run dev          # http://localhost:5173
-```
+## Run Locally
 
 ### Backend
 
 ```bash
 cd backend
-python -m venv venv
-venv\Scripts\activate          # Windows  (source venv/bin/activate on macOS/Linux)
+python -m venv .venv
+.venv\Scripts\activate        # Windows  (source .venv/bin/activate on macOS/Linux)
 pip install -r requirements.txt
-uvicorn main:app --reload      # http://localhost:8000
+uvicorn main:app --reload     # http://localhost:8000
 ```
 
-## Column Synonym Mapping
+### Frontend
 
-The parser normalises uploaded column headers (lower-case, strip whitespace,
-replace non-alphanumeric characters with `_`) and matches them against these
-synonym lists:
+```bash
+cd frontend
+npm install
+npm run dev                   # http://localhost:5173
+```
 
-| Internal Key | Accepted Column Names |
-|---|---|
-| **revenue** | `revenue`, `value`, `amount`, `sales`, `turnover` |
-| **category** | `product_category`, `product`, `industry_name`, `industry`, `industry_name_nzsioc` |
-| **region** | `region`, `area`, `state`, `territory`, `district` |
-| **status** | `status`, `order_status`, `shipment_status`, `order_state` |
-| **units** | `units`, `unit`, `magnitude` |
+## Run with Docker
 
-When a non-standard header is matched, a mapping note is included in the
-response warnings (e.g. `Mapped 'value' -> revenue`).
+```bash
+# 1. Add keys to .env at repo root (see below)
+# 2. Build & start
+docker-compose up --build
 
-## Testing with curl
+# Frontend → http://localhost:3000
+# Backend  → http://localhost:8000
+# Swagger  → http://localhost:8000/docs
+```
+
+Stop: `docker-compose down` · Rebuild: `docker-compose up --build`
+
+## Environment Variables
+
+Create a `.env` file at the repo root:
+
+| Variable | Required | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | No | Google Gemini API key (falls back to template summary) |
+| `GEMINI_MODEL` | No | Model name override (default `gemini-2.0-flash`) |
+| `SENDGRID_API_KEY` | No | SendGrid key (falls back to console log) |
+| `EMAIL_FROM` | No | Sender address (default `noreply@zipsheet.app`) |
+| `VITE_API_URL` | No | Backend URL for frontend (default `http://localhost:8000`) |
+| `CORS_ORIGIN` | No | Allowed CORS origin (default `http://localhost:5173`) |
+
+## Security Notes
+
+- **Never commit `.env`** — it is git-ignored.
+- **No raw data sent to LLM** — only the profiled stats and a small sample (max 5 rows) are sent; profile text is truncated to 6 000 chars.
+- **File size** — consider adding an upload size limit in production (e.g. nginx `client_max_body_size`).
+
+## Test with curl
 
 ```bash
 curl -X POST http://localhost:8000/analyze \
@@ -89,4 +79,11 @@ curl -X POST http://localhost:8000/analyze \
   -F "email=test@example.com"
 ```
 
-Or open **http://localhost:8000/docs** for Swagger UI.
+Or open **http://localhost:8000/docs** for the interactive Swagger UI.
+
+## Submission Checklist
+
+- [ ] GitHub repo link
+- [ ] Live frontend URL
+- [ ] Swagger docs URL (`/docs`)
+- [ ] This README
