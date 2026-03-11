@@ -7,15 +7,16 @@ to produce a professional executive summary.
 
 import logging
 import os
+from pathlib import Path
 
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-load_dotenv()
-logger = logging.getLogger(__name__)
+# Load .env from the backend directory (where this package lives)
+_backend_dir = Path(__file__).resolve().parent.parent
+load_dotenv(_backend_dir / ".env")
 
-# ── Configure Gemini ──────────────────────────────────
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """\
 You are a senior data analyst. Given the dataset analysis below, write a
@@ -40,7 +41,10 @@ async def generate_ai_summary(analysis_text: str) -> dict:
     Falls back to returning the raw analysis text if the API key is missing
     or if the model call fails, so the endpoint never crashes.
     """
-    if not GEMINI_API_KEY:
+    # Re-read every call so hot-reload picks up .env changes
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+
+    if not api_key:
         logger.warning("GEMINI_API_KEY not set — returning raw analysis instead.")
         return {
             "summary": analysis_text,
@@ -49,7 +53,7 @@ async def generate_ai_summary(analysis_text: str) -> dict:
         }
 
     try:
-        genai.configure(api_key=GEMINI_API_KEY)
+        genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
 
         response = model.generate_content(

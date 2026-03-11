@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
+from services.email_service import send_email
 from services.parser import analyze_dataset, analysis_to_text, read_file
 from services.summary import generate_ai_summary
 
@@ -66,12 +67,21 @@ async def analyze(
 
     # --- AI summary ---
     ai_result = await generate_ai_summary(analysis_text)
+    summary_text = ai_result["summary"]
+
+    # --- send email ---
+    try:
+        email_status = send_email(email, "Sales Summary", summary_text)
+    except RuntimeError as exc:
+        logger.error("Email send failed: %s", exc)
+        email_status = {"sent": False, "error": str(exc)}
 
     return {
         "status": "success",
         "email": email,
-        "summary": ai_result["summary"],
+        "summary": summary_text,
         "ai_powered": ai_result["ai_powered"],
+        "email_status": email_status,
         "dataset_overview": {
             "rows": analysis["rows"],
             "columns": analysis["columns"],
